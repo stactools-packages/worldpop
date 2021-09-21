@@ -1,4 +1,4 @@
-name: stactools-ephemeral
+name: stactools-worldpop
 channels:
   - conda-forge
   - defaults

@@ -12,7 +12,20 @@
 - Extra fields:
   - `worldpop:custom`: A custom attribute
 
-A short description of the package and its usage.
+**STAC Structure**:
+
+- Collection: Age and sex pop. structures (unconstrained, 100m)
+    - Items: Countries \* years
+         - Assets: Ages \* sexes
+- Collection: Age and sex pop. structures (constrained, UN adj., 100m)
+    - Items: Countries \* 2020
+         - Assets: Ages \* sexes
+- Collection: Population counts (unconstrained, UN adj., 100m)
+    - Items: Countries \* years
+         - Assets: Ages \* sexes
+- Collection: Population counts (constrained, UN adj., 100m)
+    - Items: Countries \* 2020
+         - Assets: Ages \* sexes
 
 ## Examples
 

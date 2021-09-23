@@ -79,5 +79,3 @@ $ stac worldpop populate-all-collections -d destination
 ```
 
 Use `stac worldpop --help` to see all subcommands and options. Each command line
- 
-

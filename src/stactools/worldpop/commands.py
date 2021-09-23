@@ -9,23 +9,23 @@ from stactools.core.utils.convert import cogify
 
 from stactools.worldpop.constants import COLLECTIONS_METADATA
 from stactools.worldpop.stac import create_collection, create_item
-from stactools.worldpop.utils import get_iso3_list
+from stactools.worldpop.utils import get_iso3_list, get_popyears
 
 logger = logging.getLogger(__name__)
 
 
 def create_worldpop_command(cli: Any) -> Any:
-    """Creates the North American Land Classification Monitoring System STAC."""
+    """Creates the WorldPop STAC."""
     @cli.group(
         "worldpop",
-        short_help=("Commands for working with worldpop data."),
+        short_help=("Commands for working with WorldPop data."),
     )
     def worldpop() -> None:
         pass
 
     @worldpop.command(
         "populate-collection",
-        short_help="Creates STAC collections for worldpop data.",
+        short_help="Creates STAC collections for WorldPop data.",
     )
     @click.option("-p",
                   "--project",
@@ -49,20 +49,15 @@ def create_worldpop_command(cli: Any) -> Any:
     )
     def populate_collection_command(project: str, category: str,
                                     destination: str) -> Any:
-        """Creates a STAC Collection for each mapped project from the North
-        American Land Classification Monitoring System.
+        """Creates a collection for one WorldPop project/category and populates it with items.
         Args:
+            project (str): WorldPop project ID.
+            category (str): WorldPop category ID (member of `project`).
             destination (str): Directory used to store the STAC collections.
         """
         collection = create_collection(project, category)
 
-        # Create list of popyears from Collection's temporal extent
-        start, stop_ = collection.extent.temporal.intervals[0]
-        assert start is not None, "Collection's temporal extent starts at None"
-        stop = stop_.year if stop_ is not None else datetime.now().year - 1
-        popyears = [str(y) for y in range(int(start.year), int(stop) + 1)]
-
-        # Get list of country codes
+        popyears = get_popyears(collection)
         iso3s = get_iso3_list(project, category)
 
         # Populate collection with items
@@ -73,8 +68,9 @@ def create_worldpop_command(cli: Any) -> Any:
             if item is not None:
                 collection.add_item(item)
 
-        collection.normalize_hrefs(destination)
-        collection.save()
+        collection_dest = os.path.join(destination, collection.id)
+        collection.normalize_hrefs(collection_dest)
+        collection.save(dest_href=collection_dest)
         collection.validate()
 
     @worldpop.command(
@@ -88,8 +84,8 @@ def create_worldpop_command(cli: Any) -> Any:
         help="The output directory for the STAC collections.",
     )
     def populate_all_collections_command(destination: str) -> Any:
-        """Creates a STAC Collection for each mapped project from the North
-        American Land Classification Monitoring System.
+        """Creates collections for all WorldPop projects/categories and populates them
+         with items.
         Args:
             destination (str): Directory used to store the STAC collections.
         """
@@ -99,13 +95,7 @@ def create_worldpop_command(cli: Any) -> Any:
         for project, category in proj_cats:
             collection = create_collection(project, category)
 
-            # Create list of popyears from Collection's temporal extent
-            start, stop_ = collection.extent.temporal.intervals[0]
-            assert start is not None, "Collection's temporal extent starts at None"
-            stop = stop_.year if stop_ is not None else datetime.now().year - 1
-            popyears = [str(y) for y in range(int(start.year), int(stop) + 1)]
-
-            # Get list of country codes
+            popyears = get_popyears(collection)
             iso3s = get_iso3_list(project, category)
 
             # Populate collection with items
@@ -118,8 +108,9 @@ def create_worldpop_command(cli: Any) -> Any:
                 if item is not None:
                     collection.add_item(item)
 
-            collection.normalize_hrefs(destination)
-            collection.save()
+            collection_dest = os.path.join(destination, collection.id)
+            collection.normalize_hrefs(collection_dest)
+            collection.save(dest_href=collection_dest)
             collection.validate()
 
     @worldpop.command(
@@ -148,14 +139,16 @@ def create_worldpop_command(cli: Any) -> Any:
     )
     def create_collection_command(project: str, category: str,
                                   destination: str) -> Any:
-        """Creates a STAC Collection for each mapped dataset from the North
-        American Land Classification Monitoring System.
+        """Creates a STAC Collection for one WorldPop project/category.
         Args:
-            destination (str): Directory used to store the STAC collections.
+            project (str): WorldPop project ID.
+            category (str): WorldPop category ID (member of `project`).
+            destination (str): Directory used to store the STAC collection.
         """
         collection = create_collection(project, category)
-        collection.normalize_hrefs(destination)
-        collection.save()
+        collection_dest = os.path.join(destination, collection.id)
+        collection.normalize_hrefs(collection_dest)
+        collection.save(dest_href=collection_dest)
         collection.validate()
 
     @worldpop.command(
@@ -192,14 +185,14 @@ def create_worldpop_command(cli: Any) -> Any:
     )
     def create_item_command(project: str, category: str, iso3: str,
                             popyear: str, destination: str) -> Any:
-        """Creates a STAC Item
+        """Creates a STAC Item for one project/category/iso3/popyear.
 
         Args:
+            project (str): WorldPop project ID.
+            category (str): WorldPop category ID (member of `project`).
+            iso3 (str): ISO3 code for a country.
+            popyear (str): Population year.
             destination (str): The output directory for the STAC json.
-            source (str): The input COG to create the item from.
-            region (str): The region covered by the STAC Item.
-            gsd (int, float): The ground sampling distance of the STAC Item.
-            year (str): The year or range of years covered by the STAC Item.
         """
         item = create_item(project, category, iso3, popyear)
         if item is not None:
@@ -225,7 +218,7 @@ def create_worldpop_command(cli: Any) -> Any:
 
         Args:
             destination (str): Local directory to save output COGs
-            source (str): An input worldpop Landcover GeoTiff
+            source (str): An worldpop GeoTIFF
         """
         if not os.path.isdir(destination):
             raise IOError(f'Destination folder "{destination}" not found')

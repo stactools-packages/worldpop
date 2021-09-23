@@ -25,16 +25,14 @@ logger = logging.getLogger(__name__)
 
 
 def create_collection(project: str, category: str) -> Collection:
-    """Create a STAC Collection for North American Land Change Monitoring System
-     Data.
-
-    These are cartographic products and are intended to be interpreted at the
-     resolution identified.
-
-    Read the original metadata for data caveats.
-
+    """Create a STAC Collection WorldPop data.
+    Args:
+        project (str): WorldPop project ID.
+        category (str): WorldPop category ID (member of `project`).
+        iso3 (str): ISO3 code for a country.
+        popyear (str): Population year.
     Returns:
-        Collection: STAC Collection object
+        Collection: STAC Collection object.
     """
     # Check the project and the category exist
     project_metadata = COLLECTIONS_METADATA.get(project)
@@ -42,9 +40,14 @@ def create_collection(project: str, category: str) -> Collection:
     category_metadata = project_metadata.get(category)
     assert category_metadata is not None, f"Category doesn't exist: {project}/{category}"
 
+    temporal_extent = [
+        str_to_datetime(dt) if dt is not None else None
+        for dt in category_metadata["time_extent"]
+    ]
+
     extent = Extent(
         SpatialExtent([WORLDPOP_EXTENT]),
-        TemporalExtent(category_metadata["time_extent"]),
+        TemporalExtent(temporal_extent),
     )
 
     collection = Collection(
@@ -89,7 +92,7 @@ def create_collection(project: str, category: str) -> Collection:
             )),
         "worldpop":
         AssetDefinition({
-            "type": [MediaType.GEOTIFF, "application/zip"],
+            "types": [MediaType.GEOTIFF, "application/zip"],
             "roles": ["data"],
             "title": "WorldPop Data",
             "proj:epsg": WORLDPOP_EPSG
@@ -104,11 +107,12 @@ def create_item(project: str, category: str, iso3: str,
     """Returns a STAC Item for a given (project, category, iso3, popyear).
 
     Args:
-        reg (str): The Region.
-        gsd (str): The GSD [m].
-        year (str): The year or difference in years (e.g. "2010-2015").
-        source (str): The path to the corresponding COG to be included as an
-         asset.
+        project (str): WorldPop project ID.
+        category (str): WorldPop category ID (member of `project`).
+        iso3 (str): ISO3 code for a country.
+        popyear (str): Population year.
+    Returns:
+        Item: STAC Item object.
     """
 
     # Get the metadata
@@ -128,7 +132,7 @@ def create_item(project: str, category: str, iso3: str,
         shape = src.shape
         transform = src.transform
         wkt = src.crs.wkt
-        epsg = src.crs.epsg
+        epsg = src.meta["crs"].to_epsg()
         nodata = src.nodata
         dtype = src.dtypes[0]
 
@@ -202,7 +206,7 @@ def create_item(project: str, category: str, iso3: str,
     proj_ext.shape = shape
 
     # Create data assets
-    for href in metadata["files"]:
+    for href in sorted(metadata["files"]):
         media_type = {
             "tif": MediaType.GEOTIFF,
             "zip": "application/zip"
@@ -214,6 +218,8 @@ def create_item(project: str, category: str, iso3: str,
                            roles=["data"],
                            title=title)
 
+        item.add_asset(title, data_asset)
+
         # Include raster information
         sampling: Any = "area"
         rast_band = RasterBand.create(nodata=nodata,
@@ -221,7 +227,5 @@ def create_item(project: str, category: str, iso3: str,
                                       sampling=sampling)
         rast_ext = RasterExtension.ext(data_asset, add_if_missing=True)
         rast_ext.bands = [rast_band]
-
-        item.add_asset(title, data_asset)
 
     return item

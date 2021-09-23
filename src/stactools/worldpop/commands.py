@@ -31,7 +31,7 @@ def create_worldpop_command(cli: Any) -> Any:
                   "--project",
                   required=False,
                   help="The WorldPop project to create a STAC for.",
-                  type=click.Choice(COLLECTIONS_METADATA.values()),
+                  type=click.Choice(list(COLLECTIONS_METADATA.keys())),
                   default="pop")
     @click.option(
         "-c",
@@ -39,7 +39,7 @@ def create_worldpop_command(cli: Any) -> Any:
         required=False,
         help="The category to create a STAC for within the chosen project.",
         type=click.Choice(
-            sum([c.keys() for c in COLLECTIONS_METADATA.values()], [])),
+            sum([list(c.keys()) for c in COLLECTIONS_METADATA.values()], [])),
         default="wpgpunadj")
     @click.option(
         "-d",
@@ -121,7 +121,7 @@ def create_worldpop_command(cli: Any) -> Any:
                   "--project",
                   required=False,
                   help="The WorldPop project to create a STAC for.",
-                  type=click.Choice(COLLECTIONS_METADATA.values()),
+                  type=click.Choice(list(COLLECTIONS_METADATA.keys())),
                   default="pop")
     @click.option(
         "-c",
@@ -129,7 +129,7 @@ def create_worldpop_command(cli: Any) -> Any:
         required=False,
         help="The category to create a STAC for within the chosen project.",
         type=click.Choice(
-            sum([c.keys() for c in COLLECTIONS_METADATA.values()], [])),
+            sum([list(c.keys()) for c in COLLECTIONS_METADATA.values()], [])),
         default="wpgpunadj")
     @click.option(
         "-d",
@@ -158,17 +158,22 @@ def create_worldpop_command(cli: Any) -> Any:
     @click.option("-p",
                   "--project",
                   required=False,
-                  help="The WorldPop project to create a STAC Item for.",
-                  type=click.Choice(COLLECTIONS_METADATA.values()),
+                  help="The WorldPop project to create a STAC for.",
+                  type=click.Choice(list(COLLECTIONS_METADATA.keys())),
                   default="pop")
-    @click.option("-c",
-                  "--category",
+    @click.option(
+        "-c",
+        "--category",
+        required=False,
+        help="The category to create a STAC for within the chosen project.",
+        type=click.Choice(
+            sum([list(c.keys()) for c in COLLECTIONS_METADATA.values()], [])),
+        default="wpgpunadj")
+    @click.option("-i",
+                  "--iso3",
                   required=False,
-                  help="The category to create a STAC Item for.",
-                  type=click.Choice(
-                      sum([c.keys() for c in COLLECTIONS_METADATA.values()],
-                          [])),
-                  default="wpgpunadj")
+                  help="The ISO3 of the country to create a STAC Item for.",
+                  default="CHN")
     @click.option("-y",
                   "--popyear",
                   required=False,

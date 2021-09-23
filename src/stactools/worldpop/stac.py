@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Any, Union
+from typing import Any, Dict, Union
 
 import rasterio
 from pystac import (Asset, CatalogType, Collection, Extent, MediaType,
@@ -122,7 +122,7 @@ def create_item(project: str, category: str, iso3: str,
     if len(metadata_popyear) == 0:
         f"No metadata found for {project}/{category}/{iso3}/{popyear}"
         return None
-    metadata: dict[str, Any] = metadata_popyear[0]
+    metadata: Dict[str, Any] = metadata_popyear[0]
 
     # Get raster metadata
     # Use FTP server because HTTPS server doesn't work with rasterio.open

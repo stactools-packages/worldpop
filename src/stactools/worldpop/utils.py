@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, List
 from urllib.parse import urlparse
 
 import requests
@@ -10,7 +10,7 @@ from pystac.collection import Collection
 from stactools.worldpop.constants import API_URL
 
 
-def get_metadata(url: str) -> dict[str, Any]:
+def get_metadata(url: str) -> Dict[str, Any]:
     """Return dictionary from JSON file at given path."""
     scheme = urlparse(url).scheme
     if scheme == "http" or scheme == "https":
@@ -23,7 +23,7 @@ def get_metadata(url: str) -> dict[str, Any]:
             return json.load(f)
 
 
-def get_iso3_list(project: str, category: str) -> list[str]:
+def get_iso3_list(project: str, category: str) -> List[str]:
     """Return a list of ISO3 country codes contained in a dataset/subset."""
     url = f"{API_URL}/{project}/{category}"
     response = requests.get(url)
@@ -32,7 +32,7 @@ def get_iso3_list(project: str, category: str) -> list[str]:
     return list(sorted(set([d["iso3"] for d in data])))
 
 
-def get_popyears(collection: Collection) -> list[str]:
+def get_popyears(collection: Collection) -> List[str]:
     """Return a list of years making up the temporale extent of a collection."""
     startstop: Any = collection.extent.temporal.intervals[0]
     start, stop_ = startstop

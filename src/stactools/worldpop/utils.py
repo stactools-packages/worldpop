@@ -1,12 +1,14 @@
 import json
-from typing import Any, Union
-from stactools.worldpop.constants import API_URL
-import requests
 import os
+from typing import Any
 from urllib.parse import urlparse
 
+import requests
 
-def get_metadata(url: str) -> Union[dict[str, Any], None]:
+from stactools.worldpop.constants import API_URL
+
+
+def get_metadata(url: str) -> dict[str, Any]:
     """Return dictionary from JSON file at given path."""
     scheme = urlparse(url).scheme
     if scheme == "http" or scheme == "https":
@@ -19,7 +21,7 @@ def get_metadata(url: str) -> Union[dict[str, Any], None]:
             return json.load(f)
 
 
-def get_iso3_list(dataset: str, subset:str) -> Union[list[str], None]:
+def get_iso3_list(dataset: str, subset: str) -> list[str]:
     """Return a list of ISO3 country codes contained in a dataset/subset."""
     url = f"{API_URL}/{dataset}/{subset}"
     response = requests.get(url)

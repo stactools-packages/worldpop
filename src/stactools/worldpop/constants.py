@@ -1,5 +1,7 @@
 # flake8: noqa
 
+from typing import Any, Dict
+
 from pyproj import CRS
 from pystac import Link, Provider, ProviderRole
 
@@ -19,28 +21,18 @@ LICENSE_LINK = Link(
 WORLDPOP_DESCRIPTION = """WorldPop was initiated in October 2013 to combine the AfriPop, AsiaPop and AmeriPop population mapping projects. It aims to provide an open access archive of spatial demographic datasets for Central and South America, Africa and Asia to support development, disaster response and health applications."""
 
 PROVIDERS = [
-    Provider(
-        name="WorldPop",
-        roles=[
-        ProviderRole.HOST,
-        ProviderRole.LICENSOR,
-        ProviderRole.PROCESSOR,
-        ProviderRole.PRODUCER,
-    ],
-    url="https://www.worldpop.org/"
-    ),
-    Provider(
-        name="Bill and Melinda Gates Foundation",
-        url="http://www.gatesfoundation.org/"
-    ),
-    Provider(
-        name="USAID",
-        url="https://www.usaid.gov/"
-    ),
-    Provider(
-        name="UN Foundation",
-        url="http://www.unfoundation.org/"
-    )
+    Provider(name="WorldPop",
+             roles=[
+                 ProviderRole.HOST,
+                 ProviderRole.LICENSOR,
+                 ProviderRole.PROCESSOR,
+                 ProviderRole.PRODUCER,
+             ],
+             url="https://www.worldpop.org/"),
+    Provider(name="Bill and Melinda Gates Foundation",
+             url="http://www.gatesfoundation.org/"),
+    Provider(name="USAID", url="https://www.usaid.gov/"),
+    Provider(name="UN Foundation", url="http://www.unfoundation.org/")
 ]
 
 KEYWORDS = [
@@ -63,45 +55,73 @@ DESCRIPTION_AGE_SEX = """<b>WorldPop produces different types of gridded populat
 TIME_EXTENT_2020 = ["2020-01-01T00:00:00Z", "2020-12-31T00:00:00Z"]
 TIME_EXTENT_2000_ = ["2000-01-01T00:00:00Z", None]
 
-COLLECTIONS_METADATA = {
+COLLECTIONS_METADATA: Dict[str, Any] = {
     "pop": {
         "wpgpunadj": {
-            "id": "pop_wpgpunadj",
-            "title": """Population counts, unconstrained individual countries 2000-2020 UN adjusted (100m resolution)""",
-            "description": DESCRIPTION_POP,
-            "time_extent": TIME_EXTENT_2000_,
-            "gsd": 100.,
-            "doi": "10.5258/SOTON/WP00660",
-            "citation": """WorldPop (www.worldpop.org - School of Geography and Environmental Science, University of Southampton; Department of Geography and Geosciences, University of Louisville; Departement de Geographie, Universite de Namur) and Center for International Earth Science Information Network (CIESIN), Columbia University (2018). Global High Resolution Population Denominators Project - Funded by The Bill and Melinda Gates Foundation (OPP1134076). https://dx.doi.org/10.5258/SOTON/WP00660"""
-        }, 
+            "id":
+            "pop_wpgpunadj",
+            "title":
+            """Population counts, unconstrained individual countries 2000-2020 UN adjusted (100m resolution)""",
+            "description":
+            DESCRIPTION_POP,
+            "time_extent":
+            TIME_EXTENT_2000_,
+            "gsd":
+            100.,
+            "doi":
+            "10.5258/SOTON/WP00660",
+            "citation":
+            """WorldPop (www.worldpop.org - School of Geography and Environmental Science, University of Southampton; Department of Geography and Geosciences, University of Louisville; Departement de Geographie, Universite de Namur) and Center for International Earth Science Information Network (CIESIN), Columbia University (2018). Global High Resolution Population Denominators Project - Funded by The Bill and Melinda Gates Foundation (OPP1134076). https://dx.doi.org/10.5258/SOTON/WP00660"""
+        },
         "cic2020_UNadj_100m": {
-            "id": "pop_cic2020_UNadj_100m",
-            "title": """Population counts, constrained Individual countries 2020 UN adjusted (100m resolution)""",
-            "description": DESCRIPTION_POP,
-            "time_extent": TIME_EXTENT_2020,
-            "gsd": 100.,
-            "doi": "10.5258/SOTON/WP00685",
-            "citation": """Bondarenko M., Kerr D., Sorichetta A., and Tatem, A.J. 2020. Census/projection-disaggregated gridded population datasets, adjusted to match the corresponding UNPD 2020 estimates, for 183 countries in 2020 using Built-Settlement Growth Model (BSGM) outputs. WorldPop, University of Southampton, UK. doi:10.5258/SOTON/WP00685"""
-        }, 
-        }, 
+            "id":
+            "pop_cic2020_UNadj_100m",
+            "title":
+            """Population counts, constrained Individual countries 2020 UN adjusted (100m resolution)""",
+            "description":
+            DESCRIPTION_POP,
+            "time_extent":
+            TIME_EXTENT_2020,
+            "gsd":
+            100.,
+            "doi":
+            "10.5258/SOTON/WP00685",
+            "citation":
+            """Bondarenko M., Kerr D., Sorichetta A., and Tatem, A.J. 2020. Census/projection-disaggregated gridded population datasets, adjusted to match the corresponding UNPD 2020 estimates, for 183 countries in 2020 using Built-Settlement Growth Model (BSGM) outputs. WorldPop, University of Southampton, UK. doi:10.5258/SOTON/WP00685"""
+        },
+    },
     "age_structures": {
         "aswpgp": {
-            "id": "age_structures_aswpgp",
-            "title": """Age and sex structures, unconstrained individual countries 2000-2020 (100m resolution)""",
-            "description": DESCRIPTION_AGE_SEX,
-            "time_extent": TIME_EXTENT_2000_,
-            "gsd": 100.,
-            "doi": "10.5258/SOTON/WP00646",
-            "citation": """WorldPop (www.worldpop.org - School of Geography and Environmental Science, University of Southampton; Department of Geography and Geosciences, University of Louisville; Departement de Geographie, Universite de Namur) and Center for International Earth Science Information Network (CIESIN), Columbia University (2018). Global High Resolution Population Denominators Project - Funded by The Bill and Melinda Gates Foundation (OPP1134076). https://dx.doi.org/10.5258/SOTON/WP00646"""
-        }, 
+            "id":
+            "age_structures_aswpgp",
+            "title":
+            """Age and sex structures, unconstrained individual countries 2000-2020 (100m resolution)""",
+            "description":
+            DESCRIPTION_AGE_SEX,
+            "time_extent":
+            TIME_EXTENT_2000_,
+            "gsd":
+            100.,
+            "doi":
+            "10.5258/SOTON/WP00646",
+            "citation":
+            """WorldPop (www.worldpop.org - School of Geography and Environmental Science, University of Southampton; Department of Geography and Geosciences, University of Louisville; Departement de Geographie, Universite de Namur) and Center for International Earth Science Information Network (CIESIN), Columbia University (2018). Global High Resolution Population Denominators Project - Funded by The Bill and Melinda Gates Foundation (OPP1134076). https://dx.doi.org/10.5258/SOTON/WP00646"""
+        },
         "ascicua_2020": {
-            "id": "age_structures_ascicua_2020",
-            "title": """Age and sex structures, constrained individual countries 2020 UN adjusted (100m resolution)""",
-            "description": DESCRIPTION_AGE_SEX,
-            "time_extent": TIME_EXTENT_2020,
-            "gsd": 100.,
-            "doi": "10.5258/SOTON/WP00698",
-            "citation": """Bondarenko M., Kerr D., Sorichetta A., and Tatem, A.J. 2020. Estimates of 2020 total number of people per grid square, adjusted to match the corresponding UNPD 2020 estimates and broken down by gender and age groupings, produced using Built-Settlement Growth Model (BSGM) outputs. WorldPop, University of Southampton, UK. doi:10.5258/SOTON/WP00698"""
-        }, 
-        }
+            "id":
+            "age_structures_ascicua_2020",
+            "title":
+            """Age and sex structures, constrained individual countries 2020 UN adjusted (100m resolution)""",
+            "description":
+            DESCRIPTION_AGE_SEX,
+            "time_extent":
+            TIME_EXTENT_2020,
+            "gsd":
+            100.,
+            "doi":
+            "10.5258/SOTON/WP00698",
+            "citation":
+            """Bondarenko M., Kerr D., Sorichetta A., and Tatem, A.J. 2020. Estimates of 2020 total number of people per grid square, adjusted to match the corresponding UNPD 2020 estimates and broken down by gender and age groupings, produced using Built-Settlement Growth Model (BSGM) outputs. WorldPop, University of Southampton, UK. doi:10.5258/SOTON/WP00698"""
+        },
     }
+}

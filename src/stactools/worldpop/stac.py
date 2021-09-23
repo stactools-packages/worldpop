@@ -1,68 +1,30 @@
 import logging
 import os
-
-from pystac.link import Link
-from stactools.worldpop.utils import get_metadata
-from shapely.geometry import box
-import rasterio
 from typing import Any, Union
 
-from pystac import (Collection, Asset, Extent, SpatialExtent, TemporalExtent, CatalogType,
-                    MediaType)
-
-from pystac.extensions.projection import (SummariesProjectionExtension, ProjectionExtension)
-from pystac.extensions.scientific import ScientificExtension
-from pystac.extensions.raster import RasterExtension, RasterBand
-from pystac.extensions.file import FileExtension
+import rasterio
+from pystac import (Asset, CatalogType, Collection, Extent, MediaType,
+                    SpatialExtent, TemporalExtent)
 from pystac.extensions.item_assets import AssetDefinition, ItemAssetsExtension
+from pystac.extensions.projection import (ProjectionExtension,
+                                          SummariesProjectionExtension)
+from pystac.extensions.raster import RasterBand, RasterExtension
+from pystac.extensions.scientific import ScientificExtension
 from pystac.item import Item
+from pystac.link import Link
 from pystac.summaries import Summaries
 from pystac.utils import str_to_datetime
+from shapely.geometry import box
 
-from stactools.worldpop.constants import (
-    API_URL,
-    CITATION,
-    COLLECTION_ID,
-    COLLECTIONS_METADATA,
-    DATA_TYPE,
-    DATASETS,
-    DOI,
-    EXTENT,
-    FILE_SIZES,
-    GSD,
-    LICENSE,
-    NODATA,
-    PERIODS,
-    PROVIDERS,
-    SPATIAL_EXTENTS,
-    GSDS,
-    HREFS_ZIP,
-    HREF_DIR,
-    KEYWORDS,
-    PROJECTIONS,
-    REGIONS,
-    SATELLITES,
-    TEMPORAL_EXTENT,
-    COLLECTION_LICENSE,
-    COLLECTION_TITLE,
-    COLLECTION_DESCRIPTION,
-    NRCAN_PROVIDER,
-    INEGI_PROVIDER,
-    CONAFOR_PROVIDER,
-    TIME_EXTENT_2000_,
-    USGS_PROVIDER,
-    CEC_PROVIDER,
-    HREFS_METADATA,
-    VALUES,
-    WORLDPOP_DESCRIPTION,
-    WORLDPOP_EPSG,
-    WORLDPOP_EXTENT,
-)
+from stactools.worldpop.constants import (API_URL, COLLECTIONS_METADATA,
+                                          KEYWORDS, LICENSE, PROVIDERS,
+                                          WORLDPOP_EPSG, WORLDPOP_EXTENT)
+from stactools.worldpop.utils import get_metadata
 
 logger = logging.getLogger(__name__)
 
 
-def create_collection(project: str, category: str) -> Union[Collection, None]:
+def create_collection(project: str, category: str) -> Collection:
     """Create a STAC Collection for North American Land Change Monitoring System
      Data.
 
@@ -76,9 +38,9 @@ def create_collection(project: str, category: str) -> Union[Collection, None]:
     """
     # Check the project and the category exist
     project_metadata = COLLECTIONS_METADATA.get(project)
-    assert project_metadata != None, f"Project doesn't exist: {project}"
+    assert project_metadata is not None, f"Project doesn't exist: {project}"
     category_metadata = project_metadata.get(category)
-    assert category_metadata != None, f"Category doesn't exist: {project}/{category}"
+    assert category_metadata is not None, f"Category doesn't exist: {project}/{category}"
 
     extent = Extent(
         SpatialExtent([WORLDPOP_EXTENT]),
@@ -91,9 +53,7 @@ def create_collection(project: str, category: str) -> Union[Collection, None]:
         title=category_metadata["title"],
         license=LICENSE,
         keywords=KEYWORDS,
-        providers=[
-            PROVIDERS
-        ],
+        providers=PROVIDERS,
         catalog_type=CatalogType.RELATIVE_PUBLISHED,
         extent=extent,
         summaries=Summaries({
@@ -129,7 +89,7 @@ def create_collection(project: str, category: str) -> Union[Collection, None]:
             )),
         "worldpop":
         AssetDefinition({
-            "type":[MediaType.GEOTIFF, "application/zip"],
+            "type": [MediaType.GEOTIFF, "application/zip"],
             "roles": ["data"],
             "title": "WorldPop Data",
             "proj:epsg": WORLDPOP_EPSG
@@ -139,9 +99,9 @@ def create_collection(project: str, category: str) -> Union[Collection, None]:
     return collection
 
 
-def create_item(project: str, category: str, iso3: str, popyear: str) -> Union[Item, None]:
-    """Returns a STAC Item for a given (region, GSD, year) if that combination
-     exists in the dataset, else None.
+def create_item(project: str, category: str, iso3: str,
+                popyear: str) -> Union[Item, None]:
+    """Returns a STAC Item for a given (project, category, iso3, popyear).
 
     Args:
         reg (str): The Region.
@@ -151,12 +111,14 @@ def create_item(project: str, category: str, iso3: str, popyear: str) -> Union[I
          asset.
     """
 
-    # Get all relevant metadata, using the first to populate Item properties
+    # Get the metadata
     metadata_url = f"{API_URL}/{project}/{category}?iso3={iso3}"
-    metadatas = get_metadata(metadata_url).get("data")
-    metadata = [m for m in metadatas if m["popyear"] == popyear]
-    assert len(metadata) == 1, f"{len(metadata)} metadata found for {project}/{category}/{iso3}/{year}"
-    metadata = metadata[0]
+    metadatas = get_metadata(metadata_url)["data"]
+    metadata_popyear = [m for m in metadatas if m["popyear"] == popyear]
+    if len(metadata_popyear) == 0:
+        f"No metadata found for {project}/{category}/{iso3}/{popyear}"
+        return None
+    metadata: dict[str, Any] = metadata_popyear[0]
 
     # Get raster metadata
     # Use FTP server because HTTPS server doesn't work with rasterio.open
@@ -171,7 +133,9 @@ def create_item(project: str, category: str, iso3: str, popyear: str) -> Union[I
         dtype = src.dtypes[0]
 
     # Create bbox and geometry
-    assert epsg == WORLDPOP_EPSG, f"Expecting EPSG={WORLDPOP_EPSG} but got EPSG={epsg} for {project}/{category}"
+    assert epsg == WORLDPOP_EPSG, (
+        f"Expecting EPSG={WORLDPOP_EPSG} but got EPSG={epsg} for {project}/{category}"
+    )
     polygon = box(*bbox, ccw=True)
     coordinates = [list(i) for i in list(polygon.exterior.coords)]
     geometry = {"type": "Polygon", "coordinates": [coordinates]}
@@ -195,11 +159,12 @@ def create_item(project: str, category: str, iso3: str, popyear: str) -> Union[I
     )
 
     # Create summary link
-    item.add_link(Link(
-        rel="child",
-        target=metadata["url_summary"],
-        title="Summary Page",
-    ))
+    item.add_link(
+        Link(
+            rel="child",
+            target=metadata["url_summary"],
+            title="Summary Page",
+        ))
 
     # Include thumbnail
     item.add_asset(
@@ -236,29 +201,27 @@ def create_item(project: str, category: str, iso3: str, popyear: str) -> Union[I
     proj_ext.wkt2 = wkt
     proj_ext.shape = shape
 
-    # Include raster information (assume the same for all data assets)
-    rast_band = RasterBand.create(
-        nodata=nodata,
-        sampling="area",
-        data_type=dtype
-        )
-    rast_ext = RasterExtension.ext(item, add_if_missing=True)
-    rast_ext.bands = [rast_band]
-
     # Create data assets
     for href in metadata["files"]:
         media_type = {
             "tif": MediaType.GEOTIFF,
             "zip": "application/zip"
         }.get(href[-3:].lower())
-        assert media_type != None, f"Unknown media type for {href}"
+        assert media_type is not None, f"Unknown media type for {href}"
         title = os.path.basename(href)[:-4]
-        data_asset = Asset(
-            href=href,
-            media_type=media_type,
-            roles=["data"],
-            title=title
-        )
+        data_asset = Asset(href=href,
+                           media_type=media_type,
+                           roles=["data"],
+                           title=title)
+
+        # Include raster information
+        sampling: Any = "area"
+        rast_band = RasterBand.create(nodata=nodata,
+                                      data_type=dtype,
+                                      sampling=sampling)
+        rast_ext = RasterExtension.ext(data_asset, add_if_missing=True)
+        rast_ext.bands = [rast_band]
+
         item.add_asset(title, data_asset)
 
     return item

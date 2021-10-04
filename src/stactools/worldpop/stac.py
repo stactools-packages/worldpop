@@ -35,10 +35,14 @@ def create_collection(project: str, category: str) -> Collection:
         Collection: STAC Collection object.
     """
     # Check the project and the category exist
-    project_metadata = COLLECTIONS_METADATA.get(project)
-    assert project_metadata is not None, f"Project doesn't exist: {project}"
-    category_metadata = project_metadata.get(category)
-    assert category_metadata is not None, f"Category doesn't exist: {project}/{category}"
+    try:
+        project_metadata = COLLECTIONS_METADATA[project]
+    except KeyError:
+        print(f"Project doesn't exist: {project}")
+    try:
+        category_metadata = project_metadata.get(category)
+    except KeyError:
+        print(f"Category doesn't exist: {project}/{category}")
 
     temporal_extent = [
         str_to_datetime(dt) if dt is not None else None
@@ -137,9 +141,10 @@ def create_item(project: str, category: str, iso3: str,
         dtype = src.dtypes[0]
 
     # Create bbox and geometry
-    assert epsg == WORLDPOP_EPSG, (
-        f"Expecting EPSG={WORLDPOP_EPSG} but got EPSG={epsg} for {project}/{category}"
-    )
+    if epsg != WORLDPOP_EPSG:
+        raise AssertionError(
+            f"Expecting EPSG={WORLDPOP_EPSG} but got EPSG={epsg} for {project}/{category}"
+        )
     polygon = box(*bbox, ccw=True)
     coordinates = [list(i) for i in list(polygon.exterior.coords)]
     geometry = {"type": "Polygon", "coordinates": [coordinates]}
@@ -207,11 +212,13 @@ def create_item(project: str, category: str, iso3: str,
 
     # Create data assets
     for href in sorted(metadata["files"]):
-        media_type = {
-            "tif": MediaType.GEOTIFF,
-            "zip": "application/zip"
-        }.get(href[-3:].lower())
-        assert media_type is not None, f"Unknown media type for {href}"
+        try:
+            media_type = {
+                "tif": MediaType.GEOTIFF,
+                "zip": "application/zip"
+            }[href[-3:].lower()]
+        except KeyError:
+            print(f"Unknown media type for {href}")
         title = os.path.basename(href)[:-4]
         data_asset = Asset(href=href,
                            media_type=media_type,

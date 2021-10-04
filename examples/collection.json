@@ -1,0 +1,125 @@
+{
+  "type": "Collection",
+  "id": "pop_wpgpunadj",
+  "stac_version": "1.0.0",
+  "description": "<b>WorldPop produces different types of gridded population count datasets, depending on the methods used and end application. \r\nPlease make sure you have read our <a href=\"/methods/populations\" target=\"_blank\">Mapping Populations</a> overview page before choosing and downloading a dataset.</b> \r\n<br/><br/>   \r\nBespoke methods used to produce datasets for specific individual countries are available through the <b>WorldPop Open Population Repository (WOPR)</b> link below. \r\nThese are 100m resolution gridded population estimates using customized methods (\"<a href=\"https://www.worldpop.org/methods/populations\" target=\"_blank\">bottom-up</a>\" and/or \"<a href=\"https://www.worldpop.org/methods/populations\" target=\"_blank\">top-down</a>\") developed for the latest data available from each country. \r\nThey can also be visualised and explored through the <a href=\"https://apps.worldpop.org/woprVision/\" target=\"_blank\">woprVision App</a>.\r\n<br/>\r\nThe remaining datasets in the links below are produced using the \"<a href=\"/methods/populations\" target=\"_blank\">top-down</a>\" method, \r\nwith either the unconstrained or constrained top-down disaggregation method used. \r\nPlease make sure you read the <a href=\"/methods/top_down_constrained_vs_unconstrained\" target=\"_blank\">Top-down estimation modelling overview page</a> to decide on which datasets best meet your needs. \r\nDatasets are available to download in Geotiff and ASCII XYZ format at a <u>resolution of 3 and 30 arc-seconds (approximately 100m and 1km at the equator, respectively)</u>:\r\n<br/><br/>\r\n- Unconstrained individual countries 2000-2020  ( 1km resolution ): Consistent 1km resolution population count datasets created using \r\n<a href=\"/methods/top_down_constrained_vs_unconstrained\" target=\"_blank\">unconstrained top-down methods</a> for all countries of the World for each year 2000-2020. \r\n<br/>\r\n- Unconstrained individual countries 2000-2020 ( 100m resolution ): Consistent 100m resolution population count datasets created using \r\n<a href=\"/methods/top_down_constrained_vs_unconstrained\" target=\"_blank\">unconstrained top-down methods</a> for all countries of the World for each year 2000-2020. \r\n<br/>\r\n- Unconstrained individual countries 2000-2020 UN adjusted ( 100m resolution ): Consistent 100m resolution population count datasets created using \r\n<a href=\"/methods/top_down_constrained_vs_unconstrained\" target=\"_blank\">unconstrained top-down methods</a> for all countries of the World for each year 2000-2020 and adjusted to match United Nations national population estimates (<a href=\"https://population.un.org/wpp/Download/Files/1_Indicators (Standard)/EXCEL_FILES/1_Population/WPP2019_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx\" target=\"_blank\">UN 2019</a>)\r\n<br/>\r\n-Unconstrained individual countries 2000-2020 UN adjusted ( 1km resolution ): Consistent 1km resolution population count datasets created using \r\n<a href=\"/methods/top_down_constrained_vs_unconstrained\" target=\"_blank\">unconstrained top-down methods</a> for all countries of the World for each year 2000-2020 and adjusted to match United Nations national population estimates (<a href=\"https://population.un.org/wpp/Download/Files/1_Indicators (Standard)/EXCEL_FILES/1_Population/WPP2019_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx\" target=\"_blank\">UN 2019</a>).\r\n<br/>\r\n-Unconstrained global mosaics 2000-2020 ( 1km resolution ): Mosaiced 1km resolution versions of the \"Unconstrained individual countries 2000-2020\" datasets.\r\n<br/>\r\n-Constrained individual countries 2020 ( 100m resolution ): Consistent 100m resolution population count datasets created using \r\n<a href=\"/methods/top_down_constrained_vs_unconstrained\" target=\"_blank\">constrained top-down methods</a> for all countries of the World for 2020.\r\n<br/>\r\n-Constrained individual countries 2020 UN adjusted ( 100m resolution ): Consistent 100m resolution population count datasets created using \r\n<a href=\"/methods/top_down_constrained_vs_unconstrained\" target=\"_blank\">constrained top-down methods</a> for all countries of the World for 2020 and adjusted to match United Nations national \r\npopulation estimates (<a href=\"https://population.un.org/wpp/Download/Files/1_Indicators (Standard)/EXCEL_FILES/1_Population/WPP2019_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx\" target=\"_blank\">UN 2019</a>).\r\n<br/>\r\n<br/>\r\nOlder datasets produced for specific individual countries and continents, using a set of tailored geospatial inputs and differing \"top-down\" methods and time periods are still available for download here: <a href=\"https://www.worldpop.org/geodata/listing?id=16\">Individual countries</a> and <a href=\"https://www.worldpop.org/geodata/listing?id=17\">Whole Continent</a>.\r\n",
+  "links": [
+    {
+      "rel": "root",
+      "href": "./collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "cite-as",
+      "href": "https://doi.org/10.5258/SOTON/WP00660"
+    },
+    {
+      "rel": "self",
+      "href": "/home/jvrt/gdspark/202105_stactools/.vscode/pop_wpgpunadj/pop_wpgpunadj/collection.json",
+      "type": "application/json"
+    }
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/scientific/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/item-assets/v1.0.0/schema.json"
+  ],
+  "sci:doi": "10.5258/SOTON/WP00660",
+  "sci:citation": "WorldPop (www.worldpop.org - School of Geography and Environmental Science, University of Southampton; Department of Geography and Geosciences, University of Louisville; Departement de Geographie, Universite de Namur) and Center for International Earth Science Information Network (CIESIN), Columbia University (2018). Global High Resolution Population Denominators Project - Funded by The Bill and Melinda Gates Foundation (OPP1134076). https://dx.doi.org/10.5258/SOTON/WP00660",
+  "item_assets": {
+    "metadata": {
+      "types": [
+        "application/json"
+      ],
+      "roles": [
+        "metadata"
+      ],
+      "title": "WorldPop Metadata"
+    },
+    "thumbnail": {
+      "types": [
+        "image/png"
+      ],
+      "roles": [
+        "thumbnail"
+      ],
+      "title": "WorldPop Thumbnail"
+    },
+    "worldpop": {
+      "types": [
+        "image/tiff; application=geotiff",
+        "application/zip"
+      ],
+      "roles": [
+        "data"
+      ],
+      "title": "WorldPop Data",
+      "proj:epsg": 4326
+    }
+  },
+  "title": "Population counts, unconstrained individual countries 2000-2020 UN adjusted (100m resolution)",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -180.0,
+          90.0,
+          180.0,
+          -90.0
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2000-01-01T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "CC-BY-4.0",
+  "keywords": [
+    "Population dynamics",
+    "Population distributions",
+    "Low income countries",
+    "Middle income countries",
+    "Spatial demographics",
+    "Age and sex structures",
+    "Population count",
+    "Population",
+    "Demographics",
+    "Geographical maps"
+  ],
+  "providers": [
+    {
+      "name": "WorldPop",
+      "roles": [
+        "host",
+        "licensor",
+        "processor",
+        "producer"
+      ],
+      "url": "https://www.worldpop.org/"
+    },
+    {
+      "name": "Bill and Melinda Gates Foundation",
+      "url": "http://www.gatesfoundation.org/"
+    },
+    {
+      "name": "USAID",
+      "url": "https://www.usaid.gov/"
+    },
+    {
+      "name": "UN Foundation",
+      "url": "http://www.unfoundation.org/"
+    }
+  ],
+  "summaries": {
+    "gsd": [
+      100.0
+    ],
+    "proj:epsg": [
+      4326
+    ]
+  }
+}

@@ -78,4 +78,4 @@ To create all Collections and populate them with Items:
 $ stac worldpop populate-all-collections -d destination
 ```
 
-Use `stac worldpop --help` to see all subcommands and options. Each command line
+Use `stac worldpop --help` to see all subcommands and options.

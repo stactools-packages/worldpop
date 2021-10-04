@@ -19,7 +19,8 @@ def get_metadata(url: str) -> Dict[str, Any]:
             raise AssertionError(f"API URL not found: {url}")
         return response.json()
     else:
-        assert os.path.exists(url), f"File path not found: {url}"
+        if not os.path.exists(url):
+            raise AssertionError(f"File path not found: {url}")
         with open(url) as f:
             return json.load(f)
 

@@ -1,6 +1,8 @@
 import unittest
 
 from stactools.worldpop import stac
+from stactools.worldpop.constants import API_URL
+from stactools.worldpop.utils import get_metadata
 
 
 class StacTest(unittest.TestCase):
@@ -26,7 +28,9 @@ class StacTest(unittest.TestCase):
         category = "wpgpunadj"
         iso3 = "CHN"
         popyear = "2020"
-        item = stac.create_item(project, category, iso3, popyear)
+        metadata_url = f"{API_URL}/{project}/{category}?iso3={iso3}"
+        metadatas = get_metadata(metadata_url)["data"]
+        item = stac.create_item(project, category, iso3, popyear, metadatas)
 
         # Check that it has some required attributes
         self.assertEqual(item.id, f"{iso3}_{popyear}")

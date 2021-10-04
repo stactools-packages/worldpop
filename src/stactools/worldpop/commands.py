@@ -1,4 +1,3 @@
-import itertools as it
 import logging
 import os
 from datetime import datetime
@@ -7,9 +6,9 @@ from typing import Any
 import click
 from stactools.core.utils.convert import cogify
 
-from stactools.worldpop.constants import COLLECTIONS_METADATA
+from stactools.worldpop.constants import API_URL, COLLECTIONS_METADATA
 from stactools.worldpop.stac import create_collection, create_item
-from stactools.worldpop.utils import get_iso3_list, get_popyears
+from stactools.worldpop.utils import get_iso3_list, get_metadata, get_popyears
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +46,13 @@ def create_worldpop_command(cli: Any) -> Any:
         required=True,
         help="The output directory for the STAC Collection json.",
     )
+    @click.option("-k",
+                  "--api_key",
+                  required=False,
+                  help="A WorldPop API key, required for >1000 calls per day.",
+                  default="")
     def populate_collection_command(project: str, category: str,
-                                    destination: str) -> Any:
+                                    destination: str, api_key: str) -> Any:
         """Creates a collection for one WorldPop project/category and populates it with items.
         Args:
             project (str): WorldPop project ID.
@@ -61,12 +65,16 @@ def create_worldpop_command(cli: Any) -> Any:
         iso3s = get_iso3_list(project, category)
 
         # Populate collection with items
-        iso3_popyears = list(it.product(iso3s, popyears))
-        for i, (iso3, popyear) in enumerate(iso3_popyears, start=1):
-            print(f"Creating item {i}/{len(iso3_popyears)}: {iso3}_{popyear}")
-            item = create_item(project, category, iso3, popyear)
-            if item is not None:
-                collection.add_item(item)
+        for i, iso3 in enumerate(iso3s, start=1):
+            print(f"Creating items for iso3 {i}/{len(iso3s)}: {iso3}")
+            metadata_url = f"{API_URL}/{project}/{category}?iso3={iso3}"
+            if api_key != "":
+                metadata_url += f"&key={api_key}"
+            metadatas = get_metadata(metadata_url)["data"]
+            for popyear in popyears:
+                item = create_item(project, category, iso3, popyear, metadatas)
+                if item is not None:
+                    collection.add_item(item)
 
         collection_dest = os.path.join(destination, collection.id)
         collection.normalize_hrefs(collection_dest)
@@ -83,7 +91,13 @@ def create_worldpop_command(cli: Any) -> Any:
         required=True,
         help="The output directory for the STAC collections.",
     )
-    def populate_all_collections_command(destination: str) -> Any:
+    @click.option("-k",
+                  "--api_key",
+                  required=False,
+                  help="A WorldPop API key, required for >1000 calls per day.",
+                  default="")
+    def populate_all_collections_command(destination: str,
+                                         api_key: str) -> Any:
         """Creates collections for all WorldPop projects/categories and populates them
          with items.
         Args:
@@ -99,14 +113,19 @@ def create_worldpop_command(cli: Any) -> Any:
             iso3s = get_iso3_list(project, category)
 
             # Populate collection with items
-            iso3_popyears = list(it.product(iso3s, popyears))
-            for i, (iso3, popyear) in enumerate(iso3_popyears, start=1):
+            for i, iso3 in enumerate(iso3s, start=1):
                 print(
-                    f"Creating {project}/{category} item {i}/{len(iso3_popyears)}: {iso3}_{popyear}"
+                    f"Creating items for {project}/{category} iso3 {i}/{len(iso3s)}: {iso3}"
                 )
-                item = create_item(project, category, iso3, popyear)
-                if item is not None:
-                    collection.add_item(item)
+                metadata_url = f"{API_URL}/{project}/{category}?iso3={iso3}"
+                if api_key != "":
+                    metadata_url += f"&key={api_key}"
+                metadatas = get_metadata(metadata_url)["data"]
+                for popyear in popyears:
+                    item = create_item(project, category, iso3, popyear,
+                                       metadatas)
+                    if item is not None:
+                        collection.add_item(item)
 
             collection_dest = os.path.join(destination, collection.id)
             collection.normalize_hrefs(collection_dest)
@@ -188,8 +207,14 @@ def create_worldpop_command(cli: Any) -> Any:
         required=True,
         help="The output directory for the STAC Item json.",
     )
+    @click.option("-k",
+                  "--api_key",
+                  required=False,
+                  help="A WorldPop API key, required for >1000 calls per day.",
+                  default="")
     def create_item_command(project: str, category: str, iso3: str,
-                            popyear: str, destination: str) -> Any:
+                            popyear: str, destination: str,
+                            api_key: str) -> Any:
         """Creates a STAC Item for one project/category/iso3/popyear.
 
         Args:
@@ -199,8 +224,14 @@ def create_worldpop_command(cli: Any) -> Any:
             popyear (str): Population year.
             destination (str): The output directory for the STAC json.
         """
-        item = create_item(project, category, iso3, popyear)
-        if item is not None:
+        metadata_url = f"{API_URL}/{project}/{category}?iso3={iso3}"
+        if api_key != "":
+            metadata_url += f"&key={api_key}"
+        metadatas = get_metadata(metadata_url)["data"]
+        item = create_item(project, category, iso3, popyear, metadatas)
+        if item is None:
+            raise AssertionError("Item cannot be created for these inputs.")
+        else:
             item_path = os.path.join(destination, f"{item.id}.json")
             item.set_self_href(item_path)
             item.save_object()

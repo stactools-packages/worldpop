@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Any, Dict, Union
+from typing import Any, List, Union
 
 import rasterio
 from pystac import (Asset, CatalogType, Collection, Extent, MediaType,
@@ -19,7 +19,6 @@ from shapely.geometry import box
 from stactools.worldpop.constants import (API_URL, COLLECTIONS_METADATA,
                                           KEYWORDS, LICENSE, PROVIDERS,
                                           WORLDPOP_EPSG, WORLDPOP_EXTENT)
-from stactools.worldpop.utils import get_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -106,8 +105,8 @@ def create_collection(project: str, category: str) -> Collection:
     return collection
 
 
-def create_item(project: str, category: str, iso3: str,
-                popyear: str) -> Union[Item, None]:
+def create_item(project: str, category: str, iso3: str, popyear: str,
+                metadatas: List[Any]) -> Union[Item, None]:
     """Returns a STAC Item for a given (project, category, iso3, popyear).
 
     Args:
@@ -119,14 +118,12 @@ def create_item(project: str, category: str, iso3: str,
         Item: STAC Item object.
     """
 
-    # Get the metadata
-    metadata_url = f"{API_URL}/{project}/{category}?iso3={iso3}"
-    metadatas = get_metadata(metadata_url)["data"]
+    # Get the specific metadata for a popyear
     metadata_popyear = [m for m in metadatas if m["popyear"] == popyear]
     if len(metadata_popyear) == 0:
-        f"No metadata found for {project}/{category}/{iso3}/{popyear}"
+        print(f"No metadata found for {project}/{category}/{iso3}/{popyear}")
         return None
-    metadata: Dict[str, Any] = metadata_popyear[0]
+    metadata = metadata_popyear[0]
 
     # Get raster metadata
     # Use FTP server because HTTPS server doesn't work with rasterio.open
@@ -190,7 +187,7 @@ def create_item(project: str, category: str, iso3: str,
     item.add_asset(
         "metadata",
         Asset(
-            href=metadata_url,
+            href=f"{API_URL}/{project}/{category}?iso3={iso3}",
             media_type=MediaType.JSON,
             roles=["metadata"],
             title="WorldPop Metadata",

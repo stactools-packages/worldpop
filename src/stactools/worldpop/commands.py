@@ -17,7 +17,7 @@ def create_worldpop_command(cli: Any) -> Any:
     """Creates the WorldPop STAC."""
     @cli.group(
         "worldpop",
-        short_help=("Commands for working with WorldPop data."),
+        short_help="Commands for working with WorldPop data.",
     )
     def worldpop() -> None:
         pass
@@ -84,7 +84,8 @@ def create_worldpop_command(cli: Any) -> Any:
     @worldpop.command(
         "populate-all-collections",
         short_help=(
-            "Creates and populates all STAC collections for worldpop data.", ))
+            "Creates and populates all STAC collections for worldpop data."),
+    )
     @click.option(
         "-d",
         "--destination",
@@ -173,7 +174,8 @@ def create_worldpop_command(cli: Any) -> Any:
     @worldpop.command(
         "create-item",
         short_help=(
-            "Creates one STAC item for a given project, category and year.", ))
+            "Creates one STAC item for a given project, category and year."),
+    )
     @click.option("-p",
                   "--project",
                   required=False,

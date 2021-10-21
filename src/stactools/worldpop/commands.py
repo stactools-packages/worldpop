@@ -26,12 +26,14 @@ def create_worldpop_command(cli: Any) -> Any:
         "populate-collection",
         short_help="Creates STAC collections for WorldPop data.",
     )
-    @click.option("-p",
-                  "--project",
-                  required=False,
-                  help="The WorldPop project to create a STAC for.",
-                  type=click.Choice(list(COLLECTIONS_METADATA.keys())),
-                  default="pop")
+    @click.option(
+        "-p",
+        "--project",
+        required=False,
+        help="The WorldPop project to create a STAC for.",
+        type=click.Choice(list(COLLECTIONS_METADATA.keys())),
+        default="pop",
+    )
     @click.option(
         "-c",
         "--category",
@@ -39,18 +41,21 @@ def create_worldpop_command(cli: Any) -> Any:
         help="The category to create a STAC for within the chosen project.",
         type=click.Choice(
             sum([list(c.keys()) for c in COLLECTIONS_METADATA.values()], [])),
-        default="wpgpunadj")
+        default="wpgpunadj",
+    )
     @click.option(
         "-d",
         "--destination",
         required=True,
         help="The output directory for the STAC Collection json.",
     )
-    @click.option("-k",
-                  "--api_key",
-                  required=False,
-                  help="A WorldPop API key, required for >1000 calls per day.",
-                  default="")
+    @click.option(
+        "-k",
+        "--api-key",
+        required=False,
+        help="A WorldPop API key, required for >1000 calls per day.",
+        default="",
+    )
     def populate_collection_command(project: str, category: str,
                                     destination: str, api_key: str) -> Any:
         """Creates a collection for one WorldPop project/category and populates it with items.
@@ -92,11 +97,13 @@ def create_worldpop_command(cli: Any) -> Any:
         required=True,
         help="The output directory for the STAC collections.",
     )
-    @click.option("-k",
-                  "--api_key",
-                  required=False,
-                  help="A WorldPop API key, required for >1000 calls per day.",
-                  default="")
+    @click.option(
+        "-k",
+        "--api-key",
+        required=False,
+        help="A WorldPop API key, required for >1000 calls per day.",
+        default="",
+    )
     def populate_all_collections_command(destination: str,
                                          api_key: str) -> Any:
         """Creates collections for all WorldPop projects/categories and populates them
@@ -137,12 +144,14 @@ def create_worldpop_command(cli: Any) -> Any:
         "create-collection",
         short_help="Creates one STAC collection for worldpop data (no items).",
     )
-    @click.option("-p",
-                  "--project",
-                  required=False,
-                  help="The WorldPop project to create a STAC for.",
-                  type=click.Choice(list(COLLECTIONS_METADATA.keys())),
-                  default="pop")
+    @click.option(
+        "-p",
+        "--project",
+        required=False,
+        help="The WorldPop project to create a STAC for.",
+        type=click.Choice(list(COLLECTIONS_METADATA.keys())),
+        default="pop",
+    )
     @click.option(
         "-c",
         "--category",
@@ -189,31 +198,37 @@ def create_worldpop_command(cli: Any) -> Any:
         help="The category to create a STAC for within the chosen project.",
         type=click.Choice(
             sum([list(c.keys()) for c in COLLECTIONS_METADATA.values()], [])),
-        default="wpgpunadj")
-    @click.option("-i",
-                  "--iso3",
-                  required=False,
-                  help="The ISO3 of the country to create a STAC Item for.",
-                  default="CHN")
-    @click.option("-y",
-                  "--popyear",
-                  required=False,
-                  help="The year to create the STAC Item for.",
-                  type=click.Choice(
-                      [str(y) for y in range(2000,
-                                             datetime.now().year)]),
-                  default="2020")
+        default="wpgpunadj",
+    )
+    @click.option(
+        "-i",
+        "--iso3",
+        required=False,
+        help="The ISO3 of the country to create a STAC Item for.",
+        default="CHN",
+    )
+    @click.option(
+        "-y",
+        "--popyear",
+        required=False,
+        help="The year to create the STAC Item for.",
+        type=click.Choice([str(y) for y in range(2000,
+                                                 datetime.now().year)]),
+        default="2020",
+    )
     @click.option(
         "-d",
         "--destination",
         required=True,
         help="The output directory for the STAC Item json.",
     )
-    @click.option("-k",
-                  "--api_key",
-                  required=False,
-                  help="A WorldPop API key, required for >1000 calls per day.",
-                  default="")
+    @click.option(
+        "-k",
+        "--api-key",
+        required=False,
+        help="A WorldPop API key, required for >1000 calls per day.",
+        default="",
+    )
     def create_item_command(project: str, category: str, iso3: str,
                             popyear: str, destination: str,
                             api_key: str) -> Any:
@@ -242,14 +257,18 @@ def create_worldpop_command(cli: Any) -> Any:
         "create-cog",
         short_help="Transform Geotiff to Cloud-Optimized Geotiff.",
     )
-    @click.option("-d",
-                  "--destination",
-                  required=True,
-                  help="The output directory for the COG")
-    @click.option("-s",
-                  "--source",
-                  required=True,
-                  help="Path to an input GeoTiff")
+    @click.option(
+        "-d",
+        "--destination",
+        required=True,
+        help="The output directory for the COG",
+    )
+    @click.option(
+        "-s",
+        "--source",
+        required=True,
+        help="Path to an input GeoTiff",
+    )
     def create_cog_command(destination: str, source: str) -> None:
         """Generate a COG from a GeoTiff. The COG will be saved in the desination
         with `_cog.tif` appended to the name.

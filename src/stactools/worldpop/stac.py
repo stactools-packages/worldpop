@@ -3,11 +3,20 @@ import os
 from typing import Any, List, Union
 
 import rasterio
-from pystac import (Asset, CatalogType, Collection, Extent, MediaType,
-                    SpatialExtent, TemporalExtent)
+from pystac import (
+    Asset,
+    CatalogType,
+    Collection,
+    Extent,
+    MediaType,
+    SpatialExtent,
+    TemporalExtent,
+)
 from pystac.extensions.item_assets import AssetDefinition, ItemAssetsExtension
-from pystac.extensions.projection import (ProjectionExtension,
-                                          SummariesProjectionExtension)
+from pystac.extensions.projection import (
+    ProjectionExtension,
+    SummariesProjectionExtension,
+)
 from pystac.extensions.raster import RasterBand, RasterExtension
 from pystac.extensions.scientific import ScientificExtension
 from pystac.item import Item
@@ -16,9 +25,15 @@ from pystac.summaries import Summaries
 from pystac.utils import str_to_datetime
 from shapely.geometry import box
 
-from stactools.worldpop.constants import (API_URL, COLLECTIONS_METADATA,
-                                          KEYWORDS, LICENSE, PROVIDERS,
-                                          WORLDPOP_EPSG, WORLDPOP_EXTENT)
+from stactools.worldpop.constants import (
+    API_URL,
+    COLLECTIONS_METADATA,
+    KEYWORDS,
+    LICENSE,
+    PROVIDERS,
+    WORLDPOP_EPSG,
+    WORLDPOP_EXTENT,
+)
 
 logger = logging.getLogger(__name__)
 

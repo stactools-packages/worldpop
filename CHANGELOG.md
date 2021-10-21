@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Nothing.
+- Updated to stactools 0.2.3 [#3](https://github.com/stactools-packages/worldpop/pull/3)
+- Made the `mypy` configuration more strict [#3](https://github.com/stactools-packages/worldpop/pull/3)
 
 ### Deprecated
 
@@ -20,4 +21,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Nothing.
+- CLI was failing due to improperly formatted help strings [#3](https://github.com/stactools-packages/worldpop/pull/3)

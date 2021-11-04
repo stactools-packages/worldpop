@@ -24,8 +24,8 @@ WorldPop is a collection of 15 "projects" each containing several "categories" c
   - Category: Unconstrained, UN adjusted, 100m (`wpgpunadj`) [[link](https://www.worldpop.org/geodata/listing?id=69)]
   - Category: Constrained, UN adjusted, 100m (`cic2020_UNadj_100m`) [[link](https://www.worldpop.org/geodata/listing?id=79)]
 - Project: **Population age and sex structure** (`age_structures`) [[link](https://www.worldpop.org/project/categories?id=8)]
-  - Category: Unconstrained, 100m (`wpgpunadj`) [[link](https://www.worldpop.org/geodata/listing?id=30)]
-  - Category: Constrained, UN adjusted, 100m (`cic2020_UNadj_100m`) [[link](https://www.worldpop.org/geodata/listing?id=88)]
+  - Category: Unconstrained, 100m (`aswpgp`) [[link](https://www.worldpop.org/geodata/listing?id=30)]
+  - Category: Constrained, UN adjusted, 100m (`ascicua_2020`) [[link](https://www.worldpop.org/geodata/listing?id=88)]
 
 You can read more about unconstrained vs. constrained methods [here](https://www.worldpop.org/methods/top_down_constrained_vs_unconstrained).
 
@@ -78,4 +78,4 @@ To create all Collections and populate them with Items:
 $ stac worldpop populate-all-collections -d destination
 ```
 
-Use `stac worldpop <subcommand> --help` to see all options for each of the subcommands above.
+Use `stac worldpop --help` to see all subcommands and options.

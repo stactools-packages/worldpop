@@ -12,20 +12,17 @@ from stactools.worldpop.constants import API_URL
 
 def get_metadata(url: str) -> Dict[str, Any]:
     """Return dictionary from JSON file at given path."""
-    ret_val: Dict[str, Any]
     scheme = urlparse(url).scheme
     if scheme == "http" or scheme == "https":
         response = requests.get(url)
         if response.status_code != 200:
             raise AssertionError(f"API URL not found: {url}")
-        ret_val = response.json()
-        return ret_val
+        return response.json()
     else:
         if not os.path.exists(url):
             raise AssertionError(f"File path not found: {url}")
         with open(url) as f:
-            ret_val = json.load(f)
-            return ret_val
+            return json.load(f)
 
 
 def get_iso3_list(project: str, category: str) -> List[str]:

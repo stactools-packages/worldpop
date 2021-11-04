@@ -28,8 +28,6 @@ def create_collection(project: str, category: str) -> Collection:
     Args:
         project (str): WorldPop project ID.
         category (str): WorldPop category ID (member of `project`).
-        iso3 (str): ISO3 code for a country.
-        popyear (str): Population year.
     Returns:
         Collection: STAC Collection object.
     """
@@ -105,8 +103,12 @@ def create_collection(project: str, category: str) -> Collection:
     return collection
 
 
-def create_item(project: str, category: str, iso3: str, popyear: str,
-                metadatas: List[Any]) -> Union[Item, None]:
+def create_item(project: str,
+                category: str,
+                iso3: str,
+                popyear: str,
+                metadatas: List[Any],
+                cog_hrefs: List[str] = [""]) -> Union[Item, None]:
     """Returns a STAC Item for a given (project, category, iso3, popyear).
 
     Args:
@@ -114,6 +116,8 @@ def create_item(project: str, category: str, iso3: str, popyear: str,
         category (str): WorldPop category ID (member of `project`).
         iso3 (str): ISO3 code for a country.
         popyear (str): Population year.
+        metadatas (list): List of metadata dicts.
+        tif_urls (List[str]): Paths to GeoTIFFs. If "", Item uses original GeoTIFF urls.
     Returns:
         Item: STAC Item object.
     """
@@ -125,10 +129,16 @@ def create_item(project: str, category: str, iso3: str, popyear: str,
         return None
     metadata = metadata_popyear[0]
 
-    # Get raster metadata
+    # Use cogs or source tif hrefs
+    if cog_hrefs[0] == "":
+        tif_hrefs = metadata["files"]
+        tile_id = ""
+    else:
+        tif_hrefs = cog_hrefs
+        tile_id = "_".join(tif_hrefs[0].split("_")[-3:-1])
     # Use FTP server because HTTPS server doesn't work with rasterio.open
-    tif_url = metadata["files"][0].replace("https://data", "ftp://ftp")
-    with rasterio.open(tif_url) as src:
+    with rasterio.open(tif_hrefs[0].replace("https://data",
+                                            "ftp://ftp")) as src:
         bbox = src.bounds
         shape = src.shape
         transform = src.transform
@@ -157,7 +167,8 @@ def create_item(project: str, category: str, iso3: str, popyear: str,
 
     # Create item
     item = Item(
-        id=f"{iso3}_{popyear}",
+        id=f"{iso3}_{popyear}"
+        if tile_id == "" else f"{iso3}_{popyear}_{tile_id}",
         geometry=geometry,
         bbox=bbox,
         datetime=str_to_datetime(f"{popyear}, 1, 1"),
@@ -208,16 +219,17 @@ def create_item(project: str, category: str, iso3: str, popyear: str,
     proj_ext.shape = shape
 
     # Create data assets
-    for href in sorted(metadata["files"]):
+    for tif_href in sorted(tif_hrefs):
         try:
             media_type = {
-                "tif": MediaType.GEOTIFF,
+                "tif":
+                MediaType.COG if cog_hrefs[0] != "" else MediaType.GEOTIFF,
                 "zip": "application/zip"
-            }[href[-3:].lower()]
+            }[tif_href[-3:].lower()]
         except KeyError:
-            print(f"Unknown media type for {href}")
-        title = os.path.basename(href)[:-4]
-        data_asset = Asset(href=href,
+            print(f"Unknown media type for {tif_href}")
+        title = os.path.basename(tif_href)[:-4]
+        data_asset = Asset(href=tif_href,
                            media_type=media_type,
                            roles=["data"],
                            title=title)

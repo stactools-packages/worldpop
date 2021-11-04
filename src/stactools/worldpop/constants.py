@@ -125,3 +125,5 @@ COLLECTIONS_METADATA: Dict[str, Any] = {
         },
     }
 }
+
+TILING_PIXEL_SIZE = (10001, 10001)

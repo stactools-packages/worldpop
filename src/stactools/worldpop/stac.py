@@ -123,7 +123,8 @@ def create_item(project: str,
                 iso3: str,
                 popyear: str,
                 metadatas: List[Any],
-                cog_hrefs: List[str] = [""]) -> Union[Item, None]:
+                cog_hrefs: List[str] = [""],
+                tiled: bool = False) -> Union[Item, None]:
     """Returns a STAC Item for a given (project, category, iso3, popyear).
 
     Args:
@@ -147,10 +148,13 @@ def create_item(project: str,
     # Use cogs or source tif hrefs
     if cog_hrefs[0] == "":
         tif_hrefs = metadata["files"]
-        tile_id = ""
     else:
         tif_hrefs = cog_hrefs
-        tile_id = "_".join(tif_hrefs[0].split("_")[-3:-1])
+    if tiled:
+        tile_id = "_" + "_".join(tif_hrefs[0].split("_")[-3:-1])
+    else:
+        tile_id = ""
+
     # Use FTP server because HTTPS server doesn't work with rasterio.open
     with rasterio.open(tif_hrefs[0].replace("https://data",
                                             "ftp://ftp")) as src:
@@ -182,8 +186,7 @@ def create_item(project: str,
 
     # Create item
     item = Item(
-        id=f"{iso3}_{popyear}"
-        if tile_id == "" else f"{iso3}_{popyear}_{tile_id}",
+        id=f"{iso3}_{popyear}{tile_id}",
         geometry=geometry,
         bbox=bbox,
         datetime=str_to_datetime(f"{popyear}, 1, 1"),

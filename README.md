@@ -77,5 +77,9 @@ To create all Collections and populate them with Items:
 ```bash
 $ stac worldpop populate-all-collections -d destination
 ```
+To convert a GeoTIFF to a cloud optimized GeoTIFF (COG):
+```bash
+$ stac worldpop create-cog -d destination -s cog_path
+```
 
-Use `stac worldpop --help` to see all subcommands and options.
+Use `stac worldpop <subcommand> --help` to see all options.

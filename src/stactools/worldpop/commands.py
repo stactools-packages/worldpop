@@ -143,7 +143,7 @@ def create_worldpop_command(cli: Any) -> Any:
                     # Create an Item for each tile
                     for cog_hrefs in cog_hrefs_items:
                         item = create_item(project, category, iso3, popyear,
-                                           metadatas, cog_hrefs)
+                                           metadatas, cog_hrefs, tile)
                         if item is not None:
                             collection.add_item(item)
 

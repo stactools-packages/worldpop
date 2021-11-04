@@ -41,7 +41,7 @@ def create_worldpop_command(cli: Any) -> Any:
         help="The category to create a STAC for within the chosen project.",
         type=click.Choice(
             sum([list(c.keys()) for c in COLLECTIONS_METADATA.values()], [])),
-        default="wpgpunadj")
+        default="cic2020_UNadj_100m")
     @click.option(
         "-d",
         "--destination",
@@ -91,6 +91,7 @@ def create_worldpop_command(cli: Any) -> Any:
                                        create_cog: bool, tile: bool,
                                        cog_destination: str) -> Any:
         collection = create_collection(project, category)
+        collection_dest = os.path.join(destination, collection.id)
 
         popyears = get_popyears(collection)
         iso3s = get_iso3_list(project, category)
@@ -128,20 +129,18 @@ def create_worldpop_command(cli: Any) -> Any:
                                                      exist_ok=True)
                         download_create_cog(output_directory=cog_asset_folder,
                                             retile=tile,
-                                            access_url=tif_href.replace(
-                                                "https://data", "ftp://ftp"))
+                                            access_url=tif_href)
 
                     # Get all (possibly tiled) cog file names, grouped by data asset
                     cog_items_hrefs = [
-                        os.path.join(cog_asset_folder, cog_fname)
-                        for cog_fname in os.listdir(cog_asset_folder)
+                        [os.path.join(cog_asset_folder, cog_fname)
+                        for cog_fname in os.listdir(cog_asset_folder)]
                         for cog_asset_folder in cog_asset_folders
                     ]
                     # Transpose list of lists to group by tile instead
                     # See https://stackoverflow.com/questions/6473679/transpose-list-of-lists
                     cog_hrefs_items: List[Any] = list(
                         map(list, zip(*cog_items_hrefs)))
-
                     # Create an Item for each tile
                     for cog_hrefs in cog_hrefs_items:
                         item = create_item(project, category, iso3, popyear,
@@ -154,11 +153,11 @@ def create_worldpop_command(cli: Any) -> Any:
                                        metadatas)
                     if item is not None:
                         collection.add_item(item)
+                
+                collection.normalize_hrefs(collection_dest)
+                collection.save(dest_href=collection_dest)
+                collection.validate()
 
-        collection_dest = os.path.join(destination, collection.id)
-        collection.normalize_hrefs(collection_dest)
-        collection.save(dest_href=collection_dest)
-        collection.validate()
 
     @worldpop.command(
         "populate-all-collections",
@@ -266,12 +265,12 @@ def create_worldpop_command(cli: Any) -> Any:
         help="The category to create a STAC for within the chosen project.",
         type=click.Choice(
             sum([list(c.keys()) for c in COLLECTIONS_METADATA.values()], [])),
-        default="wpgpunadj")
+        default="cic2020_UNadj_100m")
     @click.option("-i",
                   "--iso3",
                   required=False,
                   help="The ISO3 of the country to create a STAC Item for.",
-                  default="CHN")
+                  default="ABW")
     @click.option("-y",
                   "--popyear",
                   required=False,
@@ -291,9 +290,15 @@ def create_worldpop_command(cli: Any) -> Any:
                   required=False,
                   help="A WorldPop API key, required for >1000 calls per day.",
                   default="")
+    @click.option(
+        "-o",
+        "--cog",
+        required=True,
+        help="COG href",
+    )
     def create_item_command(project: str, category: str, iso3: str,
                             popyear: str, destination: str,
-                            api_key: str) -> Any:
+                            api_key: str, cog: str) -> Any:
         """Creates a STAC Item for one project/category/iso3/popyear.
 
         Args:
@@ -307,7 +312,7 @@ def create_worldpop_command(cli: Any) -> Any:
         if api_key != "":
             metadata_url += f"&key={api_key}"
         metadatas = get_metadata(metadata_url)["data"]
-        item = create_item(project, category, iso3, popyear, metadatas)
+        item = create_item(project, category, iso3, popyear, metadatas, cog_hrefs=[cog])
         if item is None:
             raise AssertionError("Item cannot be created for these inputs.")
         else:

@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Updated to stactools 0.2.3 [#3](https://github.com/stactools-packages/worldpop/pull/3)
 - Made the `mypy` configuration more strict [#3](https://github.com/stactools-packages/worldpop/pull/3)
+- Included capabilities to download data assets, create COGs, tile COGs.
 
 ### Deprecated
 

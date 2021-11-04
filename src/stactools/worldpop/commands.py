@@ -132,11 +132,10 @@ def create_worldpop_command(cli: Any) -> Any:
                                             access_url=tif_href)
 
                     # Get all (possibly tiled) cog file names, grouped by data asset
-                    cog_items_hrefs = [
-                        [os.path.join(cog_asset_folder, cog_fname)
-                        for cog_fname in os.listdir(cog_asset_folder)]
-                        for cog_asset_folder in cog_asset_folders
-                    ]
+                    cog_items_hrefs = [[
+                        os.path.join(cog_asset_folder, cog_fname)
+                        for cog_fname in os.listdir(cog_asset_folder)
+                    ] for cog_asset_folder in cog_asset_folders]
                     # Transpose list of lists to group by tile instead
                     # See https://stackoverflow.com/questions/6473679/transpose-list-of-lists
                     cog_hrefs_items: List[Any] = list(
@@ -153,11 +152,10 @@ def create_worldpop_command(cli: Any) -> Any:
                                        metadatas)
                     if item is not None:
                         collection.add_item(item)
-                
+
                 collection.normalize_hrefs(collection_dest)
                 collection.save(dest_href=collection_dest)
                 collection.validate()
-
 
     @worldpop.command(
         "populate-all-collections",
@@ -297,8 +295,8 @@ def create_worldpop_command(cli: Any) -> Any:
         help="COG href",
     )
     def create_item_command(project: str, category: str, iso3: str,
-                            popyear: str, destination: str,
-                            api_key: str, cog: str) -> Any:
+                            popyear: str, destination: str, api_key: str,
+                            cog: str) -> Any:
         """Creates a STAC Item for one project/category/iso3/popyear.
 
         Args:
@@ -312,7 +310,12 @@ def create_worldpop_command(cli: Any) -> Any:
         if api_key != "":
             metadata_url += f"&key={api_key}"
         metadatas = get_metadata(metadata_url)["data"]
-        item = create_item(project, category, iso3, popyear, metadatas, cog_hrefs=[cog])
+        item = create_item(project,
+                           category,
+                           iso3,
+                           popyear,
+                           metadatas,
+                           cog_hrefs=[cog])
         if item is None:
             raise AssertionError("Item cannot be created for these inputs.")
         else:

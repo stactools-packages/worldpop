@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, List
 from urllib.parse import urlparse
 
 import requests
@@ -10,7 +10,7 @@ from pystac.collection import Collection
 from stactools.worldpop.constants import API_URL
 
 
-def get_metadata(url: str) -> Dict[str, Any]:
+def get_metadata(url: str) -> Any:
     """Return dictionary from JSON file at given path."""
     scheme = urlparse(url).scheme
     if scheme == "http" or scheme == "https":

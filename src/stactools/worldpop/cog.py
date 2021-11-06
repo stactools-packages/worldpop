@@ -197,7 +197,7 @@ def tile_from_source(projects: Dict[str, List[str]], output_dir: str) -> None:
     """Created tiled cogs remote .tif files using a dict of project - categories pairs.
 
     Output files are named using the following convention:
-    f"{project}_{category}_{iso}_{popyear}_{file_num}_{tile_x}_{tile_y}.tif"
+    f"{project}_{category}_{iso}_{popyear}_{file_num}_{tile_x}_{tile_y}_cog.tif"
 
     Args:
         projects (dict): Project - categories pairs in the form:

@@ -3,12 +3,14 @@ import os
 from glob import glob
 from subprocess import CalledProcessError, check_output
 from tempfile import TemporaryDirectory
+from typing import Dict, List
 from zipfile import ZipFile
 
 import rasterio
 import requests
 
-from stactools.worldpop.constants import TILING_PIXEL_SIZE
+from stactools.worldpop.constants import API_URL, TILING_PIXEL_SIZE
+from stactools.worldpop.utils import get_iso3_list, get_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -26,19 +28,19 @@ def download_create_cog(
 
     with TemporaryDirectory() as tmp_dir:
         # Extract filename from url
-        tmp_file = os.path.join(tmp_dir, access_url.split('/').pop())
+        tmp_file = os.path.join(tmp_dir, access_url.split("/").pop())
 
         logger.info("Downloading TIFF")
         logger.debug(f"access_url: {access_url}")
         resp = requests.get(access_url)
 
-        with open(tmp_file, 'wb') as f:
+        with open(tmp_file, "wb") as f:
             logger.info("Writing TIFF")
             logger.debug(f"tmp_file: {tmp_file}")
             f.write(resp.content)
         if access_url.endswith(".zip"):
             logger.info("Unzipping TIFF")
-            with ZipFile(tmp_file, 'r') as zip_ref:
+            with ZipFile(tmp_file, "r") as zip_ref:
                 zip_ref.extractall(tmp_dir)
         file_name = glob(f"{tmp_dir}/*.tif").pop()
         if retile:
@@ -47,7 +49,8 @@ def download_create_cog(
         else:
             output_file = os.path.join(
                 output_directory,
-                os.path.basename(file_name).replace(".tif", "") + "_cog.tif")
+                os.path.basename(file_name).replace(".tif", "") + "_cog.tif",
+            )
             return create_cog(file_name, output_file, raise_on_fail, dry_run)
 
 
@@ -60,7 +63,7 @@ def create_retiled_cogs(
     """Split tiff into tiles and create COGs
 
     Args:
-        input_path (str): Path to the Natural Resources Canada Land Cover data.
+        input_path (str): Path to the input raster
         output_directory (str): The directory to which the COG will be written.
         raise_on_fail (bool, optional): Whether to raise error on failure.
             Defaults to True.
@@ -102,7 +105,8 @@ def create_retiled_cogs(
                     input_file = os.path.join(tmp_dir, f)
                     output_file = os.path.join(
                         output_directory,
-                        os.path.basename(f).replace(".tif", "") + "_cog.tif")
+                        os.path.basename(f).replace(".tif", "") + "_cog.tif",
+                    )
                     with rasterio.open(input_file, "r") as dataset:
                         contains_data = dataset.read().any()
                     # Exclude empty files
@@ -131,7 +135,7 @@ def create_cog(
     """Create COG from a TIFF
 
     Args:
-        input_path (str): Path to the Natural Resources Canada Land Cover data.
+        input_path (str): Path to input raster
         output_path (str): The path to which the COG will be written.
         raise_on_fail (bool, optional): Whether to raise error on failure.
             Defaults to True.
@@ -187,3 +191,49 @@ def create_cog(
             raise
 
     return output_path
+
+
+def tile_from_source(projects: Dict[str, List[str]], output_dir: str) -> None:
+    """Created tiled cogs remote .tif files using a dict of project - categories pairs.
+
+    Output files are named using the following convention:
+    f"{project}_{category}_{iso}_{popyear}_{file_num}_{tile_x}_{tile_y}.tif"
+
+    Args:
+        projects (dict): Project - categories pairs in the form:
+        ```
+        {
+            "project1": ["category1, "category2", ...],
+            "project2": ["category1, "category2", ...],
+            ...
+        }
+        ```
+        output_dir (str): Output directory for tiles.
+    """
+    for project, categories in projects.items():
+        for category in categories:
+            for iso in get_iso3_list(project, category):
+
+                metadata = get_metadata(
+                    f"{API_URL}/{project}/{category}?iso3={iso}")["data"]
+                years_and_files = {
+                    data["popyear"]: data["files"]
+                    for data in metadata
+                }
+
+                for popyear, files in years_and_files.items():
+                    for file_num, tif in enumerate(files):
+
+                        local_tif_name = (
+                            f"{project}_{category}_{iso}_{popyear}_{file_num}.tif"
+                        )
+
+                        with TemporaryDirectory() as tmp_dir:
+                            print(f"Downloading and tiling {tif}")
+                            local_tif_path = os.path.join(
+                                tmp_dir, local_tif_name)
+                            with open(local_tif_path, "wb") as f:
+                                response = requests.get(tif)
+                                f.write(response.content)
+
+                            create_retiled_cogs(local_tif_path, output_dir)
